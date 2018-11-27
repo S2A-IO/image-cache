@@ -1,0 +1,38 @@
+{
+  "name": "@s2a/image-cache",
+  "version": "1.0.0",
+  "description": "image-cache is a module used to cache images.",
+  "keywords": [
+  ],
+  "license": "UNLICENSED",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/S2A-IO/image-cache.git"
+  },
+  "scripts": {},
+  "author": {
+    "name": "RIKSOF (Private) Limited",
+    "email": "info@riksof.com"
+  },
+  "contributors": [
+    {
+      "name": "Khurram Ali",
+      "email": "info@riksof.com"
+    },
+    {
+      "name": "Awais Khan",
+      "email": "info@riksof.com"
+    },
+    {
+      "name": "Anas Ahmed",
+      "email": "info@riksof.com"
+    }
+  ],
+  "homepage": "https://s2a.io",
+  "peerDependencies": {
+  },
+  "dependencies": {
+  },
+  "devDependencies": {
+  }
+}
