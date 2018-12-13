@@ -1,11 +1,11 @@
 /**
- * This is a global variable.
+ * These are global variable.
  */
-const ImgCache = require('./imgcache');
-const ImgCachePromise = require('./imgcache-promise');
-var instance = null;
-const DEVICE_READY = 'deviceready';
-const CACHE_SIZE = 50 * 1024 * 1024; // 50MB
+ const ImgCache = require('./imgcache');
+ const ImgCachePromise = require('./imgcache-promise');
+ var instance = null;
+ const DEVICE_READY = 'deviceready';
+ const CACHE_SIZE = 50 * 1024 * 1024; // 50MB
 
 /**
  * @author Copyright RIKSOF (Private) Limited.
@@ -24,7 +24,7 @@ class ImageCache {
   constructor() {
     let me = this;
     document.addEventListener( DEVICE_READY, function onDeviceReady() {
-
+      me.ready = true;
       // Change allocated space image cache, default was 10MB
       ImgCache.options.chromeQuota = CACHE_SIZE;
       // NOTE: Only has effect when cordova file is added.
@@ -52,31 +52,51 @@ class ImageCache {
    * @returns {ImageCache} instance.
    */
   static getInstance() {
-    if ( instance == null ) {
-      instance = new ImageCache();
-    }
-    return instance;
+    this.instance = new ImageCache();
+    return this.instance;
   }
 
+  getDeviceReady() {
+    let me = this;
+    return new Promise( function OnPromiseCompletion( resolve, reject ) {
+      if ( !me.ready ) {
+        document.addEventListener( DEVICE_READY, function onDeviceReady() {
+          me.ready = true;
+          me.init();
+          // Change allocated space image cache, default was 10MB
+          ImgCache.options.chromeQuota = CACHE_SIZE;
+          // NOTE: Only has effect when cordova file is added.
+          ImgCache.options.cordovaFilesystemRoot = cordova.file.dataDirectory;
+          resolve();
+        }, false );
+      } else resolve();
+    });
+ }
+
   /**
-   * Get cache urls for specified image source urls.
-   *
-   * @param {string[]} src                Key for which to get the value.
-   *
-   * @returns {Promise} value             Value for the key.
-   */
-  get( src ) {
-    let p = [];
-    if ( Array.isArray( src ) ) {
-      for ( let i = 0; i < src.length; i++ ) {
-        p[ i ] = this.cacheImage( src[ i ] );
-      }
-      p = Promise.all( p );
-    } else {
-      p = this.cacheImage( src );
-    }
-    return p;
-  }
+    * Get cache urls for specified image source urls.
+    *
+    * @param {string[]} src                Key for which to get the value.
+    *
+    * @returns {Promise} value             Value for the key.
+    */
+   get( src ) {
+     let p = [];
+     if ( Array.isArray( src ) ) {
+       for ( let i = 0; i < src.length; i++ ) {
+         p[ i ] = this.cacheImage( src[ i ] );
+       }
+       p = Promise.all( p );
+     } else {
+       p = this.cacheImage( src );
+     }
+     if ( !ImgCache.ready ) {
+       return this.getDeviceReady( function OnDeviceReady() {
+         return p;
+       });
+     }
+     return p;
+   }
 
   /**
    * Get cache url for specified image source url.
@@ -96,16 +116,6 @@ class ImageCache {
         return src;
       });
     });
-  }
-  /**
-   * Set cache size for specified image source url.
-   *
-   * @param {number} cacheSize                  Key for which to set the value.
-   *
-   */
-  setCacheSize( cacheSize ) {
-    // Change allocated space image cache, default was 10MB
-    ImgCache.options.chromeQuota = cacheSize;
   }
 }
 module.exports = ImageCache;
